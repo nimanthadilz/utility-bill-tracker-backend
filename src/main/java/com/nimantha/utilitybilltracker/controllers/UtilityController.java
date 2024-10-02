@@ -32,4 +32,10 @@ public class UtilityController {
     public UtilityDTO getUtility(@PathVariable String id) {
         return utilityService.getUtilityById(Long.valueOf(id));
     }
+
+    @GetMapping
+    public CustomPageDTO<UtilityDTO> getAllUtilities(@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size) {
+        return new CustomPageDTO<UtilityDTO>(utilityService.getUtilities(page, size));
+    }
 }

@@ -1,8 +1,6 @@
 package com.nimantha.utilitybilltracker.models;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
-public interface UtilityRepository extends CrudRepository<Utility, Long> {
+public interface UtilityRepository extends JpaRepository<Utility, Long> {
 }

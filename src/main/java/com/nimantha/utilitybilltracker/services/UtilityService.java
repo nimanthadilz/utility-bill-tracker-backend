@@ -10,6 +10,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +44,14 @@ public class UtilityService {
                 utility.getName(),
                 utility.getAccountNo()
         );
+    }
+
+    public Page<UtilityDTO> getUtilities(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<UtilityDTO> utilityList = utilityRepository.findAll(pageable)
+                                                        .map((utility) -> new UtilityDTO(utility.getId(),
+                                                                                         utility.getName(),
+                                                                                         utility.getAccountNo()));
+        return utilityList;
     }
 }
