@@ -4,6 +4,8 @@ import com.nimantha.utilitybilltracker.dto.*;
 import com.nimantha.utilitybilltracker.services.UtilityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +16,7 @@ public class UtilityController {
     private final UtilityService utilityService;
 
     @PostMapping
-    public CreateUtilityResponse createUtility(@Valid @RequestBody CreateUtilityRequest createUtilityRequest) {
+    public ResponseEntity<ResponseDTO> createUtility(@RequestBody @Valid CreateUtilityRequest createUtilityRequest) {
         UserDTO userDTO = (UserDTO) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CreateUtilityDTO createUtilityDTO = new CreateUtilityDTO(
                 createUtilityRequest.getName(),
@@ -22,7 +24,7 @@ public class UtilityController {
                 userDTO.username()
         );
         utilityService.createUtility(createUtilityDTO);
-        return new CreateUtilityResponse("Created utility successfully.");
+        return new ResponseEntity<>(new ResponseDTO("Created utility successfully"), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
