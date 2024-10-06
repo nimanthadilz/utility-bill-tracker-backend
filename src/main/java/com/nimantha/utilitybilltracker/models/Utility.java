@@ -1,7 +1,6 @@
 package com.nimantha.utilitybilltracker.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
