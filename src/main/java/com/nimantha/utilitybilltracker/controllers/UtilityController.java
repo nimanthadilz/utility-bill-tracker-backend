@@ -42,4 +42,17 @@ public class UtilityController {
                                                              "must be a positive integer") int size) {
         return new CustomPageDTO<>(utilityService.getUtilities(page, size));
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ResponseDTO> updateUtility(@PathVariable Long id,
+                                                     @RequestBody UpdateUtilityRequest updateUtilityRequest) {
+        utilityService.updateUtility(id, updateUtilityRequest);
+        return new ResponseEntity<>(new ResponseDTO("Updated utility successfully"), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDTO> deleteUtility(@PathVariable Long id) {
+        utilityService.deleteUtility(id);
+        return new ResponseEntity<>(new ResponseDTO("Deleted utility successfully"), HttpStatus.OK);
+    }
 }

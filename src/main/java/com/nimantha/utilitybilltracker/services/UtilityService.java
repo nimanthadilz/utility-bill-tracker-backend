@@ -1,12 +1,15 @@
 package com.nimantha.utilitybilltracker.services;
 
 import com.nimantha.utilitybilltracker.dto.CreateUtilityDTO;
+import com.nimantha.utilitybilltracker.dto.UpdateUtilityRequest;
 import com.nimantha.utilitybilltracker.dto.UtilityDTO;
 import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
 import com.nimantha.utilitybilltracker.models.UtilityRepository;
+import com.nimantha.utilitybilltracker.repositories.BillRepository;
 import com.nimantha.utilitybilltracker.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UtilityService {
     private final UtilityRepository utilityRepository;
+    private final BillRepository billRepository;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(UtilityService.class);
 
@@ -53,5 +57,32 @@ public class UtilityService {
                                                                                          utility.getName(),
                                                                                          utility.getAccountNo()));
         return utilityList;
+    }
+
+    @Transactional
+    public void deleteUtility(Long id) {
+        if (!utilityRepository.existsById(id)) {
+            throw new EntityNotFoundException("Utility id not found: " + id);
+        }
+        billRepository.deleteByUtilityId(id);
+        utilityRepository.deleteById(id);
+    }
+
+    public void updateUtility(Long id, UpdateUtilityRequest updateUtilityRequest) {
+        Utility utility = utilityRepository.findById(id)
+                                           .orElseThrow(() -> new EntityNotFoundException("Utility id not found: " + id));
+
+        String accountNo = updateUtilityRequest.getAccountNo();
+        String name = updateUtilityRequest.getName();
+
+        if (accountNo != null) {
+            utility.setAccountNo(accountNo);
+        }
+
+        if (name != null) {
+            utility.setName(name);
+        }
+
+        utilityRepository.save(utility);
     }
 }
