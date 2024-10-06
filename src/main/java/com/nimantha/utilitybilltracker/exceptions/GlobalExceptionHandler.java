@@ -2,12 +2,14 @@ package com.nimantha.utilitybilltracker.exceptions;
 
 import com.nimantha.utilitybilltracker.dto.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,23 @@ public class GlobalExceptionHandler {
         ex.getBindingResult()
           .getFieldErrors()
           .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Map<String, String> handleConstraintViolationExceptions(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations()
+          .forEach(error -> errors.put(String.valueOf(error.getPropertyPath()), error.getMessage()));
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public Map<String, String> handleMethodArgumentTypeMismatchExceptions(MethodArgumentTypeMismatchException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put(ex.getPropertyName(), ex.getMessage());
         return errors;
     }
 }
