@@ -1,6 +1,8 @@
 package com.nimantha.utilitybilltracker.services;
 
+import com.nimantha.utilitybilltracker.dto.BillDTO;
 import com.nimantha.utilitybilltracker.dto.CreateBillDTO;
+import com.nimantha.utilitybilltracker.dto.UpdateBillRequest;
 import com.nimantha.utilitybilltracker.models.Bill;
 import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
@@ -11,8 +13,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +43,51 @@ public class BillService {
                         .build();
         billRepository.save(bill);
         logger.info("Created bill successfully: {}", createBillDTO);
+    }
+
+    public BillDTO getBillById(Long id) {
+        Bill bill = billRepository.findById(id)
+                                  .orElseThrow(() -> new EntityNotFoundException("Bill id not found: " + id));
+        return new BillDTO(
+                bill.getId(),
+                bill.getStartDate(),
+                bill.getEndDate(),
+                bill.getAmount()
+        );
+    }
+
+    public Page<BillDTO> getBills(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<BillDTO> billList = billRepository.findAll(pageable)
+                                               .map((bill) -> new BillDTO(bill.getId(),
+                                                                          bill.getStartDate(),
+                                                                          bill.getEndDate(),
+                                                                          bill.getAmount()));
+        return billList;
+    }
+
+    public void deleteBill(Long id) {
+        if (!billRepository.existsById(id)) {
+            throw new EntityNotFoundException("Bill id not found: " + id);
+        }
+        billRepository.deleteById(id);
+    }
+
+    public void updateBill(Long id, UpdateBillRequest createBillRequest) {
+        Bill bill = billRepository.findById(id)
+                                  .orElseThrow(() -> new EntityNotFoundException("Bill id not found: " + id));
+
+        LocalDate startDate = createBillRequest.getStartDate();
+        LocalDate endDate = createBillRequest.getEndDate();
+        Double amount = createBillRequest.getAmount();
+
+        if (startDate != null) {
+            bill.setStartDate(startDate);
+        }
+
+        if (endDate != null) {
+            bill.setEndDate(endDate);
+        }
+        billRepository.save(bill);
     }
 }

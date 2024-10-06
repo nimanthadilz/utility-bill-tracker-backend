@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = DateRangeValidator.class)
+@Constraint(validatedBy = {CreateBillDateRangeValidator.class, UpdateBillDateRangeValidator.class})
 public @interface ValidDateRange {
     String message() default "End date must be after start date.";
 

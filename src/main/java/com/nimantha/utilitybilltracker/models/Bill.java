@@ -26,7 +26,7 @@ public class Bill {
     @Column(nullable = false)
     private Double amount;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utility_id", referencedColumnName = "id", nullable = false)
     private Utility utility;
 }

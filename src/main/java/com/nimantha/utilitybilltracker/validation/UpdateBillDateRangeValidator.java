@@ -1,12 +1,12 @@
 package com.nimantha.utilitybilltracker.validation;
 
-import com.nimantha.utilitybilltracker.dto.CreateBillRequest;
+import com.nimantha.utilitybilltracker.dto.UpdateBillRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class DateRangeValidator implements ConstraintValidator<ValidDateRange, CreateBillRequest> {
+public class UpdateBillDateRangeValidator implements ConstraintValidator<ValidDateRange, UpdateBillRequest> {
     @Override
-    public boolean isValid(CreateBillRequest value, ConstraintValidatorContext context) {
+    public boolean isValid(UpdateBillRequest value, ConstraintValidatorContext context) {
         if (value.getStartDate() != null && value.getEndDate() != null) {
             if (!value.getEndDate().isAfter(value.getStartDate())) {
                 context.disableDefaultConstraintViolation();
