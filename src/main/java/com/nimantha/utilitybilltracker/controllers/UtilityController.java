@@ -31,8 +31,8 @@ public class UtilityController {
     }
 
     @GetMapping("/{id}")
-    public UtilityDTO getUtility(@PathVariable String id) {
-        return utilityService.getUtilityById(Long.valueOf(id));
+    public UtilityDTO getUtility(@PathVariable Long id) {
+        return utilityService.getUtilityById(id);
     }
 
     @GetMapping
