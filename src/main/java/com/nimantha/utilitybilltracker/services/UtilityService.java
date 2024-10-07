@@ -7,6 +7,7 @@ import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
 import com.nimantha.utilitybilltracker.models.UtilityRepository;
 import com.nimantha.utilitybilltracker.repositories.BillRepository;
+import com.nimantha.utilitybilltracker.repositories.PaymentRepository;
 import com.nimantha.utilitybilltracker.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 public class UtilityService {
     private final UtilityRepository utilityRepository;
     private final BillRepository billRepository;
+    private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(UtilityService.class);
 
@@ -64,6 +66,7 @@ public class UtilityService {
         if (!utilityRepository.existsById(id)) {
             throw new EntityNotFoundException("Utility id not found: " + id);
         }
+        paymentRepository.deleteByUtilityId(id);
         billRepository.deleteByUtilityId(id);
         utilityRepository.deleteById(id);
     }

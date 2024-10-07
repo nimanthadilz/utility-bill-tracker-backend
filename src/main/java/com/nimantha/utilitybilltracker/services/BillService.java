@@ -8,8 +8,10 @@ import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
 import com.nimantha.utilitybilltracker.models.UtilityRepository;
 import com.nimantha.utilitybilltracker.repositories.BillRepository;
+import com.nimantha.utilitybilltracker.repositories.PaymentRepository;
 import com.nimantha.utilitybilltracker.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ import java.time.LocalDate;
 public class BillService {
     private final BillRepository billRepository;
     private final UtilityRepository utilityRepository;
+    private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(BillService.class);
 
@@ -66,10 +69,12 @@ public class BillService {
         return billList;
     }
 
+    @Transactional
     public void deleteBill(Long id) {
         if (!billRepository.existsById(id)) {
             throw new EntityNotFoundException("Bill id not found: " + id);
         }
+        paymentRepository.deleteByBillId(id);
         billRepository.deleteById(id);
     }
 
