@@ -1,6 +1,7 @@
 package com.nimantha.utilitybilltracker.controllers;
 
 import com.nimantha.utilitybilltracker.dto.*;
+import com.nimantha.utilitybilltracker.services.BillService;
 import com.nimantha.utilitybilltracker.services.UtilityService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class UtilityController {
     private final UtilityService utilityService;
+    private final BillService billService;
 
     @PostMapping
     public ResponseEntity<ResponseDTO> createUtility(@RequestBody @Valid CreateUtilityRequest createUtilityRequest) {
@@ -54,5 +56,14 @@ public class UtilityController {
     public ResponseEntity<ResponseDTO> deleteUtility(@PathVariable Long id) {
         utilityService.deleteUtility(id);
         return new ResponseEntity<>(new ResponseDTO("Deleted utility successfully"), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/bills")
+    public CustomPageDTO<BillDTO> getAllBillsByUtility(@PathVariable Long id,
+                                                          @RequestParam(defaultValue = "0") @Min(value = 0, message =
+                                                                  "must be a non-negative integer") int page,
+                                                          @RequestParam(defaultValue = "10") @Min(value = 1, message =
+                                                                  "must be a positive integer") int size) {
+        return new CustomPageDTO<>(billService.getBillsByUtilityId(id, page, size));
     }
 }

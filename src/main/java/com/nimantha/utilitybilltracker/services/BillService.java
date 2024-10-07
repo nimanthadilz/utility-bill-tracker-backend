@@ -95,4 +95,17 @@ public class BillService {
         }
         billRepository.save(bill);
     }
+
+    public Page<BillDTO> getBillsByUtilityId(Long id, int page, int size) {
+        if (!utilityRepository.existsById(id)) {
+            throw new EntityNotFoundException("Utility id not found: " + id);
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BillDTO> billList = billRepository.findByUtilityId(id, pageable)
+                                               .map(bill -> new BillDTO(bill.getUtility().getId(),
+                                                                        bill.getStartDate(),
+                                                                        bill.getEndDate(),
+                                                                        bill.getAmount()));
+        return billList;
+    }
 }
