@@ -3,6 +3,7 @@ package com.nimantha.utilitybilltracker.services;
 import com.nimantha.utilitybilltracker.dto.BillDTO;
 import com.nimantha.utilitybilltracker.dto.CreateBillDTO;
 import com.nimantha.utilitybilltracker.dto.UpdateBillRequest;
+import com.nimantha.utilitybilltracker.mapper.BillMapper;
 import com.nimantha.utilitybilltracker.models.Bill;
 import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
@@ -31,8 +32,9 @@ public class BillService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(BillService.class);
+    private final BillMapper billMapper;
 
-    public void createBill(CreateBillDTO createBillDTO) {
+    public BillDTO createBill(CreateBillDTO createBillDTO) {
         User user = userRepository.findById(createBillDTO.username())
                                   .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Utility utility = utilityRepository.findById(createBillDTO.utilityId())
@@ -44,8 +46,9 @@ public class BillService {
                         .startDate(createBillDTO.startDate())
                         .endDate(createBillDTO.endDate())
                         .build();
-        billRepository.save(bill);
+        Bill savedEntity = billRepository.save(bill);
         logger.info("Created bill successfully: {}", createBillDTO);
+        return billMapper.billToBillDTO(savedEntity);
     }
 
     public BillDTO getBillById(Long id) {
@@ -55,7 +58,8 @@ public class BillService {
                 bill.getId(),
                 bill.getStartDate(),
                 bill.getEndDate(),
-                bill.getAmount()
+                bill.getAmount(),
+                bill.getUtility().getId()
         );
     }
 
@@ -65,7 +69,8 @@ public class BillService {
                                                .map((bill) -> new BillDTO(bill.getId(),
                                                                           bill.getStartDate(),
                                                                           bill.getEndDate(),
-                                                                          bill.getAmount()));
+                                                                          bill.getAmount(),
+                                                                          bill.getUtility().getId()));
         return billList;
     }
 
@@ -93,6 +98,10 @@ public class BillService {
         if (endDate != null) {
             bill.setEndDate(endDate);
         }
+
+        if (amount != null) {
+            bill.setAmount(amount);
+        }
         billRepository.save(bill);
     }
 
@@ -102,10 +111,11 @@ public class BillService {
         }
         Pageable pageable = PageRequest.of(page, size);
         Page<BillDTO> billList = billRepository.findByUtilityId(id, pageable)
-                                               .map(bill -> new BillDTO(bill.getUtility().getId(),
+                                               .map(bill -> new BillDTO(bill.getId(),
                                                                         bill.getStartDate(),
                                                                         bill.getEndDate(),
-                                                                        bill.getAmount()));
+                                                                        bill.getAmount(),
+                                                                        bill.getUtility().getId()));
         return billList;
     }
 }

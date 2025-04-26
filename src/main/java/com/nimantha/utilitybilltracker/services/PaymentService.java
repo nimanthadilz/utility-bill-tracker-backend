@@ -3,6 +3,7 @@ package com.nimantha.utilitybilltracker.services;
 import com.nimantha.utilitybilltracker.dto.CreatePaymentRequest;
 import com.nimantha.utilitybilltracker.dto.PaymentDTO;
 import com.nimantha.utilitybilltracker.dto.UpdatePaymentRequest;
+import com.nimantha.utilitybilltracker.mapper.PaymentMapper;
 import com.nimantha.utilitybilltracker.models.Bill;
 import com.nimantha.utilitybilltracker.models.Payment;
 import com.nimantha.utilitybilltracker.repositories.BillRepository;
@@ -24,8 +25,9 @@ public class PaymentService {
     private final BillRepository billRepository;
     private final PaymentRepository paymentRepository;
     private final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+    private final PaymentMapper paymentMapper;
 
-    public void createPayment(CreatePaymentRequest createPaymentRequest) {
+    public PaymentDTO createPayment(CreatePaymentRequest createPaymentRequest) {
         Bill bill = billRepository.findById(createPaymentRequest.getBillId())
                                   .orElseThrow(() -> new EntityNotFoundException("Bill not found"));
         logger.info("Create payment request: {}", createPaymentRequest);
@@ -34,8 +36,9 @@ public class PaymentService {
                                  .amount(createPaymentRequest.getAmount())
                                  .bill(bill)
                                  .build();
-        paymentRepository.save(payment);
+        Payment savedEntity = paymentRepository.save(payment);
         logger.info("Created payment successfully: {}", createPaymentRequest);
+        return paymentMapper.paymentToPaymentDTO(savedEntity);
     }
 
     public PaymentDTO getBillById(Long id) {
@@ -49,14 +52,20 @@ public class PaymentService {
         );
     }
 
-    public Page<PaymentDTO> getPayments(int pageNo, int pageSize) {
+    public Page<PaymentDTO> getPayments(int pageNo, int pageSize, Long billId) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<PaymentDTO> paymentList = paymentRepository.findAll(pageable)
-                                                        .map((payment) -> new PaymentDTO(payment.getId(),
-                                                                                         payment.getDate(),
-                                                                                         payment.getAmount(),
-                                                                                         payment.getBill().getId()));
-        return paymentList;
+        if (billId != null) {
+            return paymentRepository.findByBillId(pageable, billId).map((payment) -> new PaymentDTO(payment.getId(),
+                                                                                                    payment.getDate(),
+                                                                                                    payment.getAmount(),
+                                                                                                    payment.getBill()
+                                                                                                           .getId()));
+        }
+        return paymentRepository.findAll(pageable)
+                                .map((payment) -> new PaymentDTO(payment.getId(),
+                                                                 payment.getDate(),
+                                                                 payment.getAmount(),
+                                                                 payment.getBill().getId()));
     }
 
     public void deletePayment(Long id) {

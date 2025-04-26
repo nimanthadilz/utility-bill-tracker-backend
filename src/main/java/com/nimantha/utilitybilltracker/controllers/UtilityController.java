@@ -28,8 +28,8 @@ public class UtilityController {
                 createUtilityRequest.getAccountNo(),
                 userDTO.username()
         );
-        utilityService.createUtility(createUtilityDTO);
-        return new ResponseEntity<>(new ResponseDTO("Created utility successfully"), HttpStatus.CREATED);
+        UtilityDTO utilityDTO = utilityService.createUtility(createUtilityDTO);
+        return new ResponseEntity<>(new ResponseDTO("Created utility successfully", utilityDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -60,10 +60,10 @@ public class UtilityController {
 
     @GetMapping("/{id}/bills")
     public CustomPageDTO<BillDTO> getAllBillsByUtility(@PathVariable Long id,
-                                                          @RequestParam(defaultValue = "0") @Min(value = 0, message =
-                                                                  "must be a non-negative integer") int page,
-                                                          @RequestParam(defaultValue = "10") @Min(value = 1, message =
-                                                                  "must be a positive integer") int size) {
+                                                       @RequestParam(defaultValue = "0") @Min(value = 0, message =
+                                                               "must be a non-negative integer") int page,
+                                                       @RequestParam(defaultValue = "10") @Min(value = 1, message =
+                                                               "must be a positive integer") int size) {
         return new CustomPageDTO<>(billService.getBillsByUtilityId(id, page, size));
     }
 }

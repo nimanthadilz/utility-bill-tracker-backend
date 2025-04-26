@@ -19,8 +19,8 @@ public class PaymentController {
 
     @PostMapping
     public ResponseEntity<ResponseDTO> createPayment(@RequestBody @Valid CreatePaymentRequest createPaymentRequest) {
-        paymentService.createPayment(createPaymentRequest);
-        return new ResponseEntity<>(new ResponseDTO("Created payment successfully"), HttpStatus.CREATED);
+        PaymentDTO paymentDTO = paymentService.createPayment(createPaymentRequest);
+        return new ResponseEntity<>(new ResponseDTO("Created payment successfully", paymentDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -32,8 +32,9 @@ public class PaymentController {
     public CustomPageDTO<PaymentDTO> getAllPayments(@RequestParam(defaultValue = "0") @Min(value = 0, message =
             "must be a non-negative integer") int page,
                                                     @RequestParam(defaultValue = "10") @Min(value = 1, message =
-                                                            "must be a positive integer") int size) {
-        return new CustomPageDTO<>(paymentService.getPayments(page, size));
+                                                            "must be a positive integer") int size,
+                                                    @RequestParam(required = false) Long billId) {
+        return new CustomPageDTO<>(paymentService.getPayments(page, size, billId));
     }
 
     @DeleteMapping("/{id}")

@@ -28,8 +28,8 @@ public class BillController {
                 createBillRequest.getEndDate(),
                 createBillRequest.getAmount()
         );
-        billService.createBill(createBillDTO);
-        return new ResponseEntity<>(new ResponseDTO("Created bill successfully"), HttpStatus.CREATED);
+        BillDTO bill = billService.createBill(createBillDTO);
+        return new ResponseEntity<>(new ResponseDTO("Created bill successfully", bill), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")

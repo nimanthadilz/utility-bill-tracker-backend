@@ -3,6 +3,7 @@ package com.nimantha.utilitybilltracker.services;
 import com.nimantha.utilitybilltracker.dto.CreateUtilityDTO;
 import com.nimantha.utilitybilltracker.dto.UpdateUtilityRequest;
 import com.nimantha.utilitybilltracker.dto.UtilityDTO;
+import com.nimantha.utilitybilltracker.mapper.UtilityMapper;
 import com.nimantha.utilitybilltracker.models.User;
 import com.nimantha.utilitybilltracker.models.Utility;
 import com.nimantha.utilitybilltracker.models.UtilityRepository;
@@ -28,8 +29,9 @@ public class UtilityService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(UtilityService.class);
+    private final UtilityMapper utilityMapper;
 
-    public void createUtility(CreateUtilityDTO createUtilityDTO) {
+    public UtilityDTO createUtility(CreateUtilityDTO createUtilityDTO) {
         User user = userRepository.findById(createUtilityDTO.username())
                                   .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         logger.info("Create utility request: {}", createUtilityDTO);
@@ -38,8 +40,9 @@ public class UtilityService {
                                  .accountNo(createUtilityDTO.accountNumber())
                                  .user(user)
                                  .build();
-        utilityRepository.save(utility);
+        Utility savedEntity = utilityRepository.save(utility);
         logger.info("Created utility successfully: {}", createUtilityDTO);
+        return utilityMapper.utilityToUtilityDTO(savedEntity);
     }
 
     public UtilityDTO getUtilityById(Long id) {
